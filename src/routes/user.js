@@ -1,13 +1,13 @@
 import { Router } from "express";
 import Users from "../models/userModel";
+import userController from "../controllers/userController";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-  let respone = await Users.create({
-    name: "dang",
-  });
-  res.json(respone);
-});
+router.post("/login", userController.logIn);
+
+router.post("/signup", userController.signUP);
+
+router.get("/", async (req, res) => {});
 
 export default router;

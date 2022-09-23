@@ -3,10 +3,11 @@ import mongooseDelete from "mongoose-delete";
 
 const Users = new Schema(
   {
-    name: { type: String },
-    description: { type: String },
-    link: { type: String },
-    nameimg: { type: String },
+    userName: { type: String },
+    password: { type: String },
+    email: { type: String },
+    type: { type: String, default: "local" },
+    refreshToken: { type: String },
   },
   { timestamps: true }
 );
