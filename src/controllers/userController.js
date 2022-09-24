@@ -5,7 +5,7 @@ import userService from "../services/userService";
 const logIn = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    let response = await userService.LogIn({ email, password });
+    let response = await userService.LogIn(req.body);
     if (response.errCode === 0) {
       let accessToken = JWT.sign(
         response.data,
@@ -27,14 +27,24 @@ const logIn = async (req, res, next) => {
 };
 
 const signUP = async (req, res, next) => {
-  const { email, userName, password, rePassword } = req.body;
-  let data;
+  const { email, userName, password } = req.body;
+
   try {
-    if (password === rePassword) {
-      data = await userService.SignUp({ email, userName, password });
-      console.log(data);
+    let response = await userService.SignUp(req.body);
+    if (response.errCode === 0) {
+      let accessToken = JWT.sign(
+        response.data,
+        process.env.SECRETKEY_ACCESSTOKEN,
+        { expiresIn: "30m" }
+      );
+      let refreshToken = JWT.sign(
+        response.data,
+        process.env.SECRETKEY_REFRESHTOKEN,
+        { expiresIn: "30d" }
+      );
+      response["accessToken"] = accessToken;
     }
-    return res.json(data);
+    return res.json(response);
   } catch (error) {
     return res.json({ errCode: -100, msg: "err server" });
   }

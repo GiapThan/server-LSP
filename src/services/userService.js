@@ -16,7 +16,16 @@ const SignUp = ({ email, userName, password }) => {
           password: hashPassword,
         });
         if (newUser) {
-          resolve({ email: newUser.email, userName: newUser.userName });
+          resolve({
+            errCode: 0,
+            msg: "ok",
+            data: {
+              email: newUser.email,
+              userName: newUser.userName,
+              type: newUser.type,
+              roleId: newUser.roleId,
+            },
+          });
         }
       } else {
         resolve({ errCode: -1, msg: "user had already" });
@@ -41,13 +50,14 @@ const LogIn = ({ email, password }) => {
               email: user.email,
               userName: user.userName,
               type: user.type,
+              roleId: user.roleId,
             },
           });
         } else {
-          resolve({ errCode: -1, msg: "incorrect password" });
+          resolve({ errCode: -1, msg: "login fail" });
         }
       } else {
-        resolve({ errCode: -2, msg: "email doesn't exist" });
+        resolve({ errCode: -1, msg: "login fail" });
       }
     } catch (error) {
       reject(error);

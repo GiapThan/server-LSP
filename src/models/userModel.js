@@ -7,6 +7,7 @@ const Users = new Schema(
     password: { type: String },
     email: { type: String },
     type: { type: String, default: "local" },
+    roleId: { type: String, default: "01" },
     refreshToken: { type: String },
   },
   { timestamps: true }
