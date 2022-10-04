@@ -65,7 +65,10 @@ const LogIn = ({ email, password }) => {
   });
 };
 
+const LogOut = () => {}
+
 export default {
   SignUp,
   LogIn,
+  LogOut
 };

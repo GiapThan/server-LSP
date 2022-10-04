@@ -1,9 +1,9 @@
 import userRoute from "./user";
-import studentRoute from "./student";
+import adminRoute from "./admin";
 
 const router = (app) => {
   app.use("/api/user", userRoute);
-  app.use("/student", studentRoute);
+  app.use("/admin", adminRoute);
 };
 
 export default router;

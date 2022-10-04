@@ -3,7 +3,7 @@ import JWT from "jsonwebtoken";
 import userService from "../services/userService";
 
 const logIn = async (req, res, next) => {
-  const { email, password } = req.body;
+  console.log(req.headers);
   try {
     let response = await userService.LogIn(req.body);
     if (response.errCode === 0) {
@@ -18,7 +18,19 @@ const logIn = async (req, res, next) => {
         { expiresIn: "30d" }
       );
 
-      response["accessToken"] = accessToken;
+      response.data["accessToken"] = accessToken;
+      return res
+        .cookie("refreshToken", refreshToken, {
+          sameSite: "strict",
+          path: "/",
+          expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+          httpOnly: false,
+        })
+        .cookie("status", "200", {
+          path: "/",
+          expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+        })
+        .json(response);
     }
     return res.json(response);
   } catch (error) {
@@ -27,8 +39,6 @@ const logIn = async (req, res, next) => {
 };
 
 const signUP = async (req, res, next) => {
-  const { email, userName, password } = req.body;
-
   try {
     let response = await userService.SignUp(req.body);
     if (response.errCode === 0) {
@@ -42,7 +52,19 @@ const signUP = async (req, res, next) => {
         process.env.SECRETKEY_REFRESHTOKEN,
         { expiresIn: "30d" }
       );
-      response["accessToken"] = accessToken;
+      response.data["accessToken"] = accessToken;
+      return res
+        .cookie("refreshToken", refreshToken, {
+          sameSite: "strict",
+          path: "/",
+          expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+          httpOnly: true,
+        })
+        .cookie("status", "200", {
+          path: "/",
+          expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+        })
+        .json(response);
     }
     return res.json(response);
   } catch (error) {
@@ -50,7 +72,12 @@ const signUP = async (req, res, next) => {
   }
 };
 
+const logOut = async (req, res, next) => {
+  
+}
+
 export default {
   logIn,
   signUP,
+  logOut
 };
