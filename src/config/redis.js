@@ -1,21 +1,18 @@
-
-import {createClient} from 'redis'
+import { createClient } from "redis";
+import dotenv from "dotenv";
+dotenv.config();
 
 const client = createClient({
-    username: 'ng-free-db',
-    password: 'JOyYmFBc4yDWg8vmBVayZbh89jqOYr1R',
-   
-})
+  url: process.env.REDIS_URL,
+});
 
-client.on('error', (err) => {
-    console.log('Redis Client Error', err)
-})
+client
+  .connect()
+  .then(() => {
+    console.log("redis ok");
+  })
+  .catch((err) => {
+    console.log("no", err);
+  });
 
-export default connect = async () => {
-    try { 
-        let result = await client.connect()
-        console.log(result)
-    } catch (error) {
-        console.log(error)
-    }
-}
+export default client;

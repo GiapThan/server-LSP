@@ -1,9 +1,9 @@
 import JWT from "jsonwebtoken";
 
+import redisClient from "../config/redis";
 import userService from "../services/userService";
 
 const logIn = async (req, res, next) => {
-  console.log(req.headers);
   try {
     let response = await userService.LogIn(req.body);
     if (response.errCode === 0) {
@@ -19,16 +19,15 @@ const logIn = async (req, res, next) => {
       );
 
       response.data["accessToken"] = accessToken;
+
+      redisClient.set(String(response.data.idUser), refreshToken);
+
       return res
         .cookie("refreshToken", refreshToken, {
           sameSite: "strict",
           path: "/",
           expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
           httpOnly: false,
-        })
-        .cookie("status", "200", {
-          path: "/",
-          expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
         })
         .json(response);
     }
@@ -53,16 +52,14 @@ const signUP = async (req, res, next) => {
         { expiresIn: "30d" }
       );
       response.data["accessToken"] = accessToken;
+      redisClient.set(String(response.data.idUser), refreshToken);
+
       return res
         .cookie("refreshToken", refreshToken, {
           sameSite: "strict",
           path: "/",
           expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
           httpOnly: true,
-        })
-        .cookie("status", "200", {
-          path: "/",
-          expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
         })
         .json(response);
     }
@@ -73,11 +70,52 @@ const signUP = async (req, res, next) => {
 };
 
 const logOut = async (req, res, next) => {
-  
-}
+  console.log("next");
+  return res.clearCookie("refreshToken").json({
+    errCode: 0,
+    msg: "ok",
+  });
+};
 
+const refreshToken = async (req, res, next) => {
+  const token = req.cookies["refreshToken"];
+  if (!token) return;
+  try {
+    let result = JWT.verify(token, process.env.SECRETKEY_REFRESHTOKEN);
+    if (result) {
+      let accessToken = JWT.sign(
+        {
+          idUser: result.idUser,
+          email: result.email,
+          userName: result.userName,
+          type: result.type,
+          roleId: result.roleId,
+        },
+        process.env.SECRETKEY_ACCESSTOKEN
+      );
+      res.json({
+        errCode: 0,
+        data: {
+          idUser: result.idUser,
+          email: result.email,
+          userName: result.userName,
+          type: result.type,
+          roleId: result.roleId,
+          accessToken,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({
+      errCode: -1,
+      msg: "",
+    });
+  }
+};
 export default {
   logIn,
   signUP,
-  logOut
+  logOut,
+  refreshToken,
 };

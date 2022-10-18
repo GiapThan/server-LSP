@@ -21,7 +21,6 @@ app.use(
   })
 );
 app.use(cookieParser());
-
 connectMongooseDB();
 router(app);
 

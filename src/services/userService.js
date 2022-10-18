@@ -20,6 +20,7 @@ const SignUp = ({ email, userName, password }) => {
             errCode: 0,
             msg: "ok",
             data: {
+              idUser: newUser._id,
               email: newUser.email,
               userName: newUser.userName,
               type: newUser.type,
@@ -47,6 +48,7 @@ const LogIn = ({ email, password }) => {
             errCode: 0,
             msg: "ok",
             data: {
+              idUser: user._id,
               email: user.email,
               userName: user.userName,
               type: user.type,
@@ -65,10 +67,10 @@ const LogIn = ({ email, password }) => {
   });
 };
 
-const LogOut = () => {}
+const LogOut = () => {};
 
 export default {
   SignUp,
   LogIn,
-  LogOut
+  LogOut,
 };
