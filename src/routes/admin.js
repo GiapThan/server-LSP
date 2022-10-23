@@ -14,11 +14,18 @@ router.get("/delusers", async (req, res) => {
   res.json(result);
 });
 
-router.get("/redis/set", async (req, res) => {
-  await client.set("demo", "demo");
+router.get("/allkeys", async (req, res) => {
+  try {
+    let resu = await client.keys("*");
+
+    res.send(resu);
+  } catch (error) {
+    res.send(error);
+  }
 });
-router.get("/redis/get", async (req, res) => {
-  let a = await client.get("6348ead86d2c5e4ea8947d0a");
-  res.json({ a });
+
+router.get("/allkeys/:key", async (req, res) => {
+  let key = req.params.key;
+  await client.del(key);
 });
 export default router;

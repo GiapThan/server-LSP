@@ -52,6 +52,7 @@ const signUP = async (req, res, next) => {
         { expiresIn: "30d" }
       );
       response.data["accessToken"] = accessToken;
+
       redisClient.set(String(response.data.idUser), refreshToken);
 
       return res
@@ -70,7 +71,7 @@ const signUP = async (req, res, next) => {
 };
 
 const logOut = async (req, res, next) => {
-  console.log("next");
+  redisClient.del(req.idUser);
   return res.clearCookie("refreshToken").json({
     errCode: 0,
     msg: "ok",
@@ -79,10 +80,12 @@ const logOut = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
   const token = req.cookies["refreshToken"];
-  if (!token) return;
+  if (!token) return res.json({ errCode: -1, msg: "" });
   try {
     let result = JWT.verify(token, process.env.SECRETKEY_REFRESHTOKEN);
     if (result) {
+      let redisRefreshToken = await redisClient.get(result.idUser);
+      if (!redisRefreshToken) return res.json({ errCode: -2, msg: "" });
       let accessToken = JWT.sign(
         {
           idUser: result.idUser,
@@ -106,9 +109,8 @@ const refreshToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log(error);
     res.json({
-      errCode: -1,
+      errCode: -3,
       msg: "",
     });
   }
